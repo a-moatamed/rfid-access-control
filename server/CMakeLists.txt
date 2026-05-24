@@ -1,5 +1,5 @@
 
-// creat the library
+// create the library
 add_library(auth_server_lib STATIC src/AuthServer.cpp) 
 
 // specify the include directory for the library
