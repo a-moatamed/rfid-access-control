@@ -1,0 +1,27 @@
+PROJECT_NAME           = "DistributedAccessControl"
+PROJECT_NUMBER         = "@PROJECT_VERSION@"
+OUTPUT_DIRECTORY       = "@CMAKE_CURRENT_BINARY_DIR@/docs"
+CREATE_SUBDIRS         = NO
+
+OPTIMIZE_OUTPUT_FOR_C  = NO
+HAVE_DOT               = NO
+EXTRACT_ALL            = YES
+EXTRACT_PRIVATE        = NO
+EXTRACT_STATIC         = NO
+EXTRACT_LOCAL_CLASSES  = YES
+
+INPUT                  = "@CMAKE_SOURCE_DIR@/embedded/include" \
+                         "@CMAKE_SOURCE_DIR@/embedded/src" \
+                         "@CMAKE_SOURCE_DIR@/server/include" \
+                         "@CMAKE_SOURCE_DIR@/server/src"
+
+FILE_PATTERNS          = *.hpp *.h *.cpp
+RECURSIVE              = YES
+
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+GENERATE_LATEX         = NO
+
+QUIET                  = NO
+WARN_IF_UNDOCUMENTED   = NO
+WARN_IF_DOC_ERROR      = YES
