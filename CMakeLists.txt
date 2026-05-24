@@ -24,8 +24,8 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(googletest)
 
 # Add project components
-add_subdirectory(embedded)
 
+add_subdirectory(embedded)
 # Doxygen documentation target
 find_package(Doxygen)
 
