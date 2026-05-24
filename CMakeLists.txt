@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Export compile commands (Crucial for Issue 2.1 Static Analysis)
+# Export compile commands 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Download and configure Google Test globally via FetchContent
@@ -17,7 +17,7 @@ FetchContent_Declare(
   GIT_TAG        release-1.12.1
 )
 
-# Prevent GTest from overriding your compiler/linker settings
+# Prevent GTest from overriding the compiler/linker settings
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
 # Make GTest available to all subdirectories
