@@ -54,6 +54,16 @@ else()
     message(WARNING "clang-tidy not found. Install with: sudo apt install clang-tidy")
 endif()
 
+# Dynamic Analysis Integration 
+
+set(CMAKE_C_FLAGS_SANITIZE "${CMAKE_C_FLAGS_DEBUG} -fsanitize=address,undefined -fno-omit-frame-pointer -g -O1" 
+    CACHE STRING "Flags used by the C compiler during sanitize builds." FORCE)
+set(CMAKE_CXX_FLAGS_SANITIZE "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address,undefined -fno-omit-frame-pointer -g -O1" 
+    CACHE STRING "Flags used by the CXX compiler during sanitize builds." FORCE)
+set(CMAKE_EXE_LINKER_FLAGS_SANITIZE "-fsanitize=address,undefined" 
+    CACHE STRING "Flags used for linking binaries during sanitize builds." FORCE)
+set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo" "Sanitize")
+
 # Add project components
 add_subdirectory(embedded)
 add_subdirectory(server)
