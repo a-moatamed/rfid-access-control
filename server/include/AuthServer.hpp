@@ -16,5 +16,8 @@ public:
      * @param badgeId The numeric identifier of the badge being checked.
      * @return True if the badge is authorized, false otherwise.
      */
+
+    // Justification: Will require class state in Epic 3 when the database is added.
+    // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
     bool authorizeBadge(int badgeId) const;
 };
