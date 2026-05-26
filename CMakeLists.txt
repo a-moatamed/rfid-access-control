@@ -23,3 +23,19 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 # Make GTest available to all subdirectories
 FetchContent_MakeAvailable(googletest)
 
+# Search the host operating system for the clang-tidy executable 
+find_program(CLANG_TIDY_EXE NAMES clang-tidy)
+
+if(CLANG_TIDY_EXE)
+    message(STATUS "Found clang-tidy: ${CLANG_TIDY_EXE}")
+    # Enable all standard checks, disable noisy/compiler-specific ones.
+    set(CMAKE_CXX_CLANG_TIDY 
+        "${CLANG_TIDY_EXE};-checks=*,-fuchsia-*,-llvmlibc-*,-llvm-header-guard;--warnings-as-errors=*"
+    )
+else()
+    message(WARNING "clang-tidy not found. Install with: sudo apt install clang-tidy")
+endif()
+
+# Also build embedded & server
+add_subdirectory(embedded)
+add_subdirectory(server)
