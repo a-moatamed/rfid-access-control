@@ -30,7 +30,7 @@ if(CLANG_TIDY_EXE)
     message(STATUS "Found clang-tidy: ${CLANG_TIDY_EXE}")
     # Enable all standard checks, disable noisy/compiler-specific ones.
     set(CMAKE_CXX_CLANG_TIDY 
-        "${CLANG_TIDY_EXE};-checks=*,-fuchsia-*,-llvmlibc-*,-llvm-header-guard;--warnings-as-errors=*"
+        "${CLANG_TIDY_EXE};-checks=*,-fuchsia-*,-llvmlibc-*,-llvm-header-guard,-modernize-use-trailing-return-type;--warnings-as-errors=*"
     )
 else()
     message(WARNING "clang-tidy not found. Install with: sudo apt install clang-tidy")
