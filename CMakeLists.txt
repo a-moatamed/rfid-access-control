@@ -35,7 +35,3 @@ if(CLANG_TIDY_EXE)
 else()
     message(WARNING "clang-tidy not found. Install with: sudo apt install clang-tidy")
 endif()
-
-# Also build embedded & server
-add_subdirectory(embedded)
-add_subdirectory(server)
