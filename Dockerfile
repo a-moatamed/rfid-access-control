@@ -23,10 +23,8 @@ RUN apt-get update && apt-get install -y \
     clang-tidy \
     doxygen \
     python3-pip \
+    && pip3 install --no-cache-dir gcovr \
     && rm -rf /var/lib/apt/lists/*
-
-# Install gcovr via pip
-RUN pip3 install gcovr
 
 # Workspace
 WORKDIR /app
