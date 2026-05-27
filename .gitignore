@@ -1,0 +1,59 @@
+# ==========================================
+# C++ & CMake Standard .gitignore
+# ==========================================
+
+# 1. CMake Auto-generated Files & Build Directories
+build/
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+
+# 2. Compiled Outputs (Objects, Libraries, Executables)
+*.o
+*.a
+*.so
+*.dylib
+*.out
+*.exe
+*.dll
+
+# 3. IDE-specific Folders & Files
+.vscode/
+.idea/
+*.swp
+*.swo
+compile_commands.json
+
+# 4. Testing & Coverage Artifacts (gcov/gcovr)
+*.gcda
+*.gcno
+*.gcov
+coverage/
+
+# 5. Doxygen Generated Documentation
+html/
+latex/
+
+# 6. External Dependencies (FetchContent/GoogleTest)
+_deps/
+
+# ==========================================
+# OS-Specific System Files
+# ==========================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
