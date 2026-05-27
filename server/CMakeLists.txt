@@ -1,13 +1,21 @@
 # ==============================================================================
 # Project:      [rfid-access-control/server]
 # Description:  CMake configuration for the authentication server library.
-#               This library provides the core functionality for the RFID access 
-#               control system's authentication server.
-# Author:       [Abdelrahman Abomosa / TEAM 15 - UPB]
 # ==============================================================================
 
-# create a static library from the source file
-add_library(auth_server_lib STATIC src/AuthServer.cpp) 
+add_library(auth_server_lib STATIC src/AuthServer.cpp)
+target_include_directories(auth_server_lib PUBLIC include)
 
-# specify the include directories for the library
-target_include_directories(auth_server_lib PUBLIC include) 
+add_executable(auth_server_tests
+    tests/AuthServerTest.cpp
+)
+
+target_link_libraries(auth_server_tests PRIVATE
+    auth_server_lib
+    GTest::gtest_main
+)
+
+target_include_directories(auth_server_tests PRIVATE include)
+
+include(GoogleTest)
+gtest_discover_tests(auth_server_tests)

@@ -1,15 +1,17 @@
+#include <algorithm>
+#include <array>
+
 #include "AuthServer.hpp"
 
 AuthServer::AuthServer() = default;
 
-// BUG: Hardcoded to always return true! Massive security flaw.
 // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 bool AuthServer::authorizeBadge(int badgeId) const {
-    // Team must implement a real lookup against a list of valid IDs
-    if(badgeId < 0) {  // just a simple check to prevent negative IDs, but this is not sufficient for real security
-        return false; 
+    if (badgeId < 0) {
+        return false;
     }
 
-    // For now, we'll just return false to simulate a failed authorization
-    return false; 
+    constexpr std::array<int, 3> allowedBadges{1001, 1002, 1003};
+
+    return std::find(allowedBadges.begin(), allowedBadges.end(), badgeId) != allowedBadges.end();
 }
