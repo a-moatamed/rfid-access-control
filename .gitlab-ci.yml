@@ -24,7 +24,7 @@ static_analysis:
   script:
     - echo "Running clang-tidy static analysis..."
     - cmake -S . -B build-lint
-    - cmake --build build-lint
+    - cmake --build build-lint -j 4  
 
 # ==========================================
 # 2. COMPILATION
@@ -38,7 +38,7 @@ compile_project:
   script: 
     - echo "Compiling cross-architecture libraries..."
     - cmake -S . -B build -DENABLE_COVERAGE=ON
-    - cmake --build build
+    - cmake --build build -j 4  
   artifacts:
     paths:
       - build/
@@ -63,7 +63,7 @@ coverage_report:
     expire_in: 1 week
 
 # ==========================================
-# 4. DYNAMIC ANALYSIS (Issue 2.3)
+# 4. DYNAMIC ANALYSIS 
 # ==========================================
 sanitize_build:
   stage: sanitize
@@ -71,15 +71,27 @@ sanitize_build:
     - local-embedded
 
   needs: [] # Runs in parallel immediately!
+
+  # Caching build artifacts to speed up subsequent runs. This is especially beneficial 
+  # for the sanitization stage, which can be time-consuming due to the additional instrumentation.
+  # ==========================================
+  cache:
+    key: cxx-build-cache          # A unique name for this specific zip file
+    paths:
+      - build-san/_deps/          # Caches downloaded dependencies (like GoogleTest)
+      - build-san/CMakeFiles/     # Caches CMake's internal state
+    policy: pull-push             # Download the cache at the start, update it at the end
+  # ==========================================
+
   script: 
     - echo "Compiling with AddressSanitizer and UndefinedBehaviorSanitizer..."
     - cmake -S . -B build-san -DCMAKE_BUILD_TYPE=Sanitize
-    - cmake --build build-san
+    - cmake --build build-san -j 4 # Use multiple cores for faster builds 
     - cd build-san
     - ctest --output-on-failure
 
 # ==========================================
-# 5. DOCUMENTATION (Issue 1.4)
+# 5. DOCUMENTATION 
 # ==========================================
 pages:
   stage: docs
@@ -90,7 +102,7 @@ pages:
   script:
     - echo "Generating Doxygen HTML..."
     - cmake -S . -B build-docs
-    - cmake --build build-docs --target docs
+    - cmake --build build-docs --target docs -j 4  
     - mv build-docs/docs/html public
   artifacts:
     paths:
