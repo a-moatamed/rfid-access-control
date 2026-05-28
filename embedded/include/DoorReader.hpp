@@ -51,4 +51,9 @@ public:
      * @brief Forces the door back into a locked state.
      */
     void secureDoor();
+
+    /**
+     * @brief Clears an ALARM_LOCKOUT state and resets the door to LOCKED.
+     */
+    void adminReset();
 };

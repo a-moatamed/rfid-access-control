@@ -3,6 +3,7 @@
 DoorReader::DoorReader() : state(DoorState::LOCKED), failedAttempts(0) {}
 
 DoorState DoorReader::getState() const { return state; }
+
 int DoorReader::getFailedAttempts() const { return failedAttempts; }
 
 void DoorReader::processScanResult(bool isAuthorized) {
@@ -25,4 +26,11 @@ void DoorReader::processScanResult(bool isAuthorized) {
 
 void DoorReader::secureDoor() {
     state = DoorState::LOCKED;
+    failedAttempts = 0; // FIXED: Ghost counter bug resolved
+}
+
+// NEW: Recovery mechanism for Epic 3.1
+void DoorReader::adminReset() {
+    state = DoorState::LOCKED;
+    failedAttempts = 0;
 }
