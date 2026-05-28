@@ -1,0 +1,99 @@
+# ==========================================
+# GitLab CI/CD Pipeline for Embedded C++ Project
+# ==========================================
+image:
+  name: rfid-builder:local
+  pull_policy: if-not-present # Use local image for faster builds
+
+stages:
+  - lint
+  - build
+  - test
+  - sanitize
+  - docs
+
+
+# ==========================================
+# 1. STATIC ANALYSIS
+# ==========================================
+static_analysis:
+  stage: lint
+  tags :
+    - local-embedded
+
+  script:
+    - echo "Running clang-tidy static analysis..."
+    - cmake -S . -B build-lint
+    - cmake --build build-lint
+
+# ==========================================
+# 2. COMPILATION
+# ==========================================
+compile_project:
+  stage: build
+  tags :
+    - local-embedded
+
+  needs: [static_analysis]
+  script: 
+    - echo "Compiling cross-architecture libraries..."
+    - cmake -S . -B build -DENABLE_COVERAGE=ON
+    - cmake --build build
+  artifacts:
+    paths:
+      - build/
+    expire_in: 1 hour
+
+# ==========================================
+# 3. CODE COVERAGE (Issue 2.4)
+# ==========================================
+coverage_report:
+  stage: test
+  tags :
+    - local-embedded
+
+  needs: [compile_project]
+  script: 
+    - cd build
+    - echo "Generating gcovr report..."
+    - make coverage
+  artifacts:
+    paths:
+      - build/coverage/
+    expire_in: 1 week
+
+# ==========================================
+# 4. DYNAMIC ANALYSIS (Issue 2.3)
+# ==========================================
+sanitize_build:
+  stage: sanitize
+  tags :
+    - local-embedded
+
+  needs: [] # Runs in parallel immediately!
+  script: 
+    - echo "Compiling with AddressSanitizer and UndefinedBehaviorSanitizer..."
+    - cmake -S . -B build-san -DCMAKE_BUILD_TYPE=Sanitize
+    - cmake --build build-san
+    - cd build-san
+    - ctest --output-on-failure
+
+# ==========================================
+# 5. DOCUMENTATION (Issue 1.4)
+# ==========================================
+pages:
+  stage: docs
+  tags :
+    - local-embedded
+
+  needs: [] # Runs in parallel immediately!
+  script:
+    - echo "Generating Doxygen HTML..."
+    - cmake -S . -B build-docs
+    - cmake --build build-docs --target docs
+    - mv build-docs/docs/html public
+  artifacts:
+    paths:
+      - public
+  rules:
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
