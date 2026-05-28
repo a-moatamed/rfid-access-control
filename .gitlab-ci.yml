@@ -2,9 +2,9 @@
 # GitLab CI/CD Pipeline for Embedded C++ Project
 # ==========================================
 image:
-  name: rfid-builder:local
-  pull_policy: if-not-present # Use local image for faster builds
-
+  name: gitlab.cs.pub.ro:5050/uni-projects/rfid-access-control/rfid-builder:latest
+  pull_policy: always
+  
 stages:
   - lint
   - build
