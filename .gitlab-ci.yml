@@ -67,17 +67,19 @@ coverage_report:
 # ==========================================
 sanitize_build:
   stage: sanitize
-  tags :
+  tags:
     - local-embedded
 
-  needs: [] # Runs in parallel immediately!
-  script: 
+  needs: []
+  variables:
+    ASAN_OPTIONS: detect_leaks=0:halt_on_error=1
+    UBSAN_OPTIONS: print_stacktrace=1
+  script:
     - echo "Compiling with AddressSanitizer and UndefinedBehaviorSanitizer..."
     - cmake -S . -B build-san -DCMAKE_BUILD_TYPE=Sanitize
     - cmake --build build-san
     - cd build-san
-    - ctest --output-on-failure
-
+    - ctest --output-on-failure -V --timeout 60
 # ==========================================
 # 5. DOCUMENTATION (Issue 1.4)
 # ==========================================
