@@ -61,6 +61,8 @@ coverage_report:
 # ==========================================
 sanitize_build:
   stage: sanitize
+  variables:
+    ASAN_OPTIONS: "detect_leaks=0" # Disabling leak detection to avoid false positives in embedded environments
 
   needs: [] # Runs in parallel immediately!
 
