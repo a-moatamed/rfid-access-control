@@ -24,7 +24,7 @@ static_analysis:
   script:
     - echo "Running clang-tidy static analysis..."
     - cmake -S . -B build-lint
-    - cmake --build build-lint
+    - cmake --build build-lint -j 4  
 
 # ==========================================
 # 2. COMPILATION
@@ -38,7 +38,7 @@ compile_project:
   script: 
     - echo "Compiling cross-architecture libraries..."
     - cmake -S . -B build -DENABLE_COVERAGE=ON
-    - cmake --build build
+    - cmake --build build -j 4  
   artifacts:
     paths:
       - build/
@@ -82,11 +82,11 @@ sanitize_build:
       - build-san/CMakeFiles/     # Caches CMake's internal state
     policy: pull-push             # Download the cache at the start, update it at the end
   # ==========================================
-  
+
   script: 
     - echo "Compiling with AddressSanitizer and UndefinedBehaviorSanitizer..."
     - cmake -S . -B build-san -DCMAKE_BUILD_TYPE=Sanitize
-    - cmake --build build-san -j 4 # Use multiple cores for faster builds
+    - cmake --build build-san -j 4 # Use multiple cores for faster builds 
     - cd build-san
     - ctest --output-on-failure
 
@@ -102,7 +102,7 @@ pages:
   script:
     - echo "Generating Doxygen HTML..."
     - cmake -S . -B build-docs
-    - cmake --build build-docs --target docs
+    - cmake --build build-docs --target docs -j 4  
     - mv build-docs/docs/html public
   artifacts:
     paths:
