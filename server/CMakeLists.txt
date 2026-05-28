@@ -17,5 +17,4 @@ target_link_libraries(auth_server_tests PRIVATE
 
 target_include_directories(auth_server_tests PRIVATE include)
 
-include(GoogleTest)
-gtest_discover_tests(auth_server_tests)
+add_test(NAME auth_server_tests COMMAND auth_server_tests)
