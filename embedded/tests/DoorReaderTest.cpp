@@ -1,16 +1,16 @@
-#include <gtest/gtest.h>
 #include "DoorReader.hpp"
+#include <gtest/gtest.h>
 
 // Test 1: Verify the constructor sets the correct default state
 TEST(DoorReaderTest, InitialStateIsLocked) {
-    DoorReader reader;
+    const DoorReader reader; 
     EXPECT_EQ(reader.getState(), DoorState::LOCKED);
     EXPECT_EQ(reader.getFailedAttempts(), 0);
 }
 
 // Test 2: Verify a successful scan unlocks the door and resets attempts
 TEST(DoorReaderTest, SuccessfulScanUnlocksDoor) {
-    DoorReader reader;
+    DoorReader reader; 
     
     // Simulate a failed attempt first to ensure the counter resets
     reader.processScanResult(false);
@@ -25,7 +25,7 @@ TEST(DoorReaderTest, SuccessfulScanUnlocksDoor) {
 
 // Test 3: Verify a failed scan increments the counter but keeps the door locked
 TEST(DoorReaderTest, FailedScanIncrementsCounter) {
-    DoorReader reader;
+    DoorReader reader; 
     
     reader.processScanResult(false);
     
@@ -35,7 +35,7 @@ TEST(DoorReaderTest, FailedScanIncrementsCounter) {
 
 // Test 4: Verify the 3rd consecutive failure triggers the ALARM_LOCKOUT
 TEST(DoorReaderTest, ThirdFailedScanTriggersLockout) {
-    DoorReader reader;
+    DoorReader reader; 
     
     reader.processScanResult(false); // Attempt 1
     EXPECT_EQ(reader.getState(), DoorState::LOCKED);
@@ -54,7 +54,7 @@ TEST(DoorReaderTest, ThirdFailedScanTriggersLockout) {
 
 // Test 5: Verify secureDoor() forces the state back to LOCKED
 TEST(DoorReaderTest, SecureDoorForcesLockedState) {
-    DoorReader reader;
+    DoorReader reader; 
     
     // Unlock the door first
     reader.processScanResult(true);
