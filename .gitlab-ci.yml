@@ -4,7 +4,7 @@
 image:
   name: gitlab.cs.pub.ro:5050/uni-projects/rfid-access-control/rfid-builder:latest
   pull_policy: always
-  
+
 stages:
   - lint
   - build
@@ -18,8 +18,6 @@ stages:
 # ==========================================
 static_analysis:
   stage: lint
-  tags :
-    - local-embedded
 
   script:
     - echo "Running clang-tidy static analysis..."
@@ -31,8 +29,6 @@ static_analysis:
 # ==========================================
 compile_project:
   stage: build
-  tags :
-    - local-embedded
 
   needs: [static_analysis]
   script: 
@@ -49,8 +45,6 @@ compile_project:
 # ==========================================
 coverage_report:
   stage: test
-  tags :
-    - local-embedded
 
   needs: [compile_project]
   script: 
@@ -67,8 +61,6 @@ coverage_report:
 # ==========================================
 sanitize_build:
   stage: sanitize
-  tags :
-    - local-embedded
 
   needs: [] # Runs in parallel immediately!
 
@@ -95,8 +87,6 @@ sanitize_build:
 # ==========================================
 pages:
   stage: docs
-  tags :
-    - local-embedded
 
   needs: [] # Runs in parallel immediately!
   script:
