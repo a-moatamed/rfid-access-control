@@ -65,3 +65,21 @@ TEST(DoorReaderTest, SecureDoorForcesLockedState) {
     
     EXPECT_EQ(reader.getState(), DoorState::LOCKED);
 }
+
+// Test 6: Lockout state ignores valid badges
+TEST(DoorReaderTest, LockoutStateIgnoresValidBadges) {
+    DoorReader reader; 
+    
+    // 1. Force the door into the ALARM_LOCKOUT state
+    reader.processScanResult(false);
+    reader.processScanResult(false);
+    reader.processScanResult(false);
+    EXPECT_EQ(reader.getState(), DoorState::ALARM_LOCKOUT);
+
+    // 2. Attempt to scan a VALID badge
+    reader.processScanResult(true);
+
+    // 3. Verify the door strictly remains locked out and the counter doesn't reset
+    EXPECT_EQ(reader.getState(), DoorState::ALARM_LOCKOUT);
+    EXPECT_EQ(reader.getFailedAttempts(), 3); 
+}
