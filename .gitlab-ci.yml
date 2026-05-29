@@ -2,8 +2,8 @@
 # GitLab CI/CD Pipeline for Embedded C++ Project
 # ==========================================
 image:
-  name: rfid-builder:local
-  pull_policy: if-not-present # Use local image for faster builds
+  name: gitlab.cs.pub.ro:5050/uni-projects/rfid-access-control/rfid-builder:latest
+  pull_policy: always
 
 stages:
   - lint
@@ -18,27 +18,23 @@ stages:
 # ==========================================
 static_analysis:
   stage: lint
-  tags :
-    - local-embedded
 
   script:
     - echo "Running clang-tidy static analysis..."
     - cmake -S . -B build-lint
-    - cmake --build build-lint
+    - cmake --build build-lint -j 4  
 
 # ==========================================
 # 2. COMPILATION
 # ==========================================
 compile_project:
   stage: build
-  tags :
-    - local-embedded
 
   needs: [static_analysis]
   script: 
     - echo "Compiling cross-architecture libraries..."
     - cmake -S . -B build -DENABLE_COVERAGE=ON
-    - cmake --build build
+    - cmake --build build -j 4  
   artifacts:
     paths:
       - build/
@@ -49,8 +45,6 @@ compile_project:
 # ==========================================
 coverage_report:
   stage: test
-  tags :
-    - local-embedded
 
   needs: [compile_project]
   script: 
@@ -63,36 +57,44 @@ coverage_report:
     expire_in: 1 week
 
 # ==========================================
-# 4. DYNAMIC ANALYSIS (Issue 2.3)
+# 4. DYNAMIC ANALYSIS 
 # ==========================================
 sanitize_build:
   stage: sanitize
-  tags:
-    - local-embedded
-
-  needs: []
   variables:
-    ASAN_OPTIONS: detect_leaks=0:halt_on_error=1
-    UBSAN_OPTIONS: print_stacktrace=1
-  script:
+    ASAN_OPTIONS: "detect_leaks=0" # Disabling leak detection to avoid false positives in embedded environments
+
+  needs: [] # Runs in parallel immediately!
+
+  # Caching build artifacts to speed up subsequent runs. This is especially beneficial 
+  # for the sanitization stage, which can be time-consuming due to the additional instrumentation.
+  # ==========================================
+  cache:
+    key: cxx-build-cache          # A unique name for this specific zip file
+    paths:
+      - build-san/_deps/          # Caches downloaded dependencies (like GoogleTest)
+      - build-san/CMakeFiles/     # Caches CMake's internal state
+    policy: pull-push             # Download the cache at the start, update it at the end
+  # ==========================================
+
+  script: 
     - echo "Compiling with AddressSanitizer and UndefinedBehaviorSanitizer..."
     - cmake -S . -B build-san -DCMAKE_BUILD_TYPE=Sanitize
-    - cmake --build build-san
+    - cmake --build build-san -j 4 # Use multiple cores for faster builds 
     - cd build-san
-    - ctest --output-on-failure -V --timeout 60
+    - ctest --output-on-failure
+
 # ==========================================
-# 5. DOCUMENTATION (Issue 1.4)
+# 5. DOCUMENTATION 
 # ==========================================
 pages:
   stage: docs
-  tags :
-    - local-embedded
 
   needs: [] # Runs in parallel immediately!
   script:
     - echo "Generating Doxygen HTML..."
     - cmake -S . -B build-docs
-    - cmake --build build-docs --target docs
+    - cmake --build build-docs --target docs -j 4  
     - mv build-docs/docs/html public
   artifacts:
     paths:
