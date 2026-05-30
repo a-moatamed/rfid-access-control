@@ -5,14 +5,21 @@ DoorReader::DoorReader() : state(DoorState::LOCKED), failedAttempts(0) {}
 DoorState DoorReader::getState() const { return state; }
 int DoorReader::getFailedAttempts() const { return failedAttempts; }
 
-// BUG: Does not trigger ALARM_LOCKOUT after 3 failed attempts
 void DoorReader::processScanResult(bool isAuthorized) {
+    // If we are already in lockout, do not process further scans
+    if (state == DoorState::ALARM_LOCKOUT) {
+        return; 
+    }
     if (isAuthorized) {
         state = DoorState::UNLOCKED;
         failedAttempts = 0;
     } else {
-        state = DoorState::LOCKED;
         failedAttempts += 1;
+        if (failedAttempts >= 3) {
+            state = DoorState::ALARM_LOCKOUT;
+        } else {
+            state = DoorState::LOCKED;
+        }
     }
 }
 
