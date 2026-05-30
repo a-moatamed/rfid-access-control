@@ -1,5 +1,0 @@
-if(EXISTS "/app/build-san/server/auth_server_tests[1]_tests.cmake")
-  include("/app/build-san/server/auth_server_tests[1]_tests.cmake")
-else()
-  add_test(auth_server_tests_NOT_BUILT auth_server_tests_NOT_BUILT)
-endif()

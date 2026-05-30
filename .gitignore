@@ -4,6 +4,7 @@
 
 # 1. CMake Auto-generated Files & Build Directories
 build/
+build-*/
 CMakeCache.txt
 CMakeFiles/
 CMakeScripts/

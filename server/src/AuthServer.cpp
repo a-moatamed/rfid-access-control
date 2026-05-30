@@ -5,13 +5,31 @@
 
 AuthServer::AuthServer() = default;
 
-// NOLINTNEXTLINE(readability-convert-member-functions-to-static)
 bool AuthServer::authorizeBadge(int badgeId) const {
     if (badgeId < 0) {
         return false;
     }
 
-    constexpr std::array<int, 3> allowedBadges{1001, 1002, 1003};
+    return std::find(authorizedBadgeIds.begin(), authorizedBadgeIds.end(), badgeId) != authorizedBadgeIds.end();
+}
 
-    return std::find(allowedBadges.begin(), allowedBadges.end(), badgeId) != allowedBadges.end();
+void AuthServer::addAuthorizedBadge(int badgeId) {
+    if (badgeId < 0) {
+        return;
+    }
+
+    if (!authorizeBadge(badgeId)) {
+        authorizedBadgeIds.push_back(badgeId);
+    }
+}
+
+void AuthServer::removeAuthorizedBadge(int badgeId) {
+    if (badgeId < 0) {
+        return;
+    }
+
+    auto item = std::find(authorizedBadgeIds.begin(), authorizedBadgeIds.end(), badgeId);
+    if (item != authorizedBadgeIds.end()) { // Badge found, remove it
+        authorizedBadgeIds.erase(item);
+    }
 }

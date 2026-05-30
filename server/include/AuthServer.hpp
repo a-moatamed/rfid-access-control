@@ -1,9 +1,13 @@
 #pragma once
+#include <vector>
 
 /**
  * @brief Simulates the backend authorization server for badge validation.
  */
 class AuthServer {
+private:
+    // Simulated list of authorized badge IDs
+    std::vector<int> authorizedBadgeIds;
 public:
     /**
      * @brief Constructs an authorization server instance.
@@ -16,8 +20,20 @@ public:
      * @param badgeId The numeric identifier of the badge being checked.
      * @return True if the badge is authorized, false otherwise.
      */
-
-    // Justification: Will require class state in Epic 3 when the database is added.
-    // NOLINTNEXTLINE(readability-convert-member-functions-to-static)
     bool authorizeBadge(int badgeId) const;
+
+    /**
+     * @brief Adds a badge ID to the list of authorized badges.
+     *
+     * @param badgeId The numeric identifier of the badge to add.
+     */
+    void addAuthorizedBadge(int badgeId);
+
+    /**
+     * @brief Removes a badge ID from the list of authorized badges.
+     *
+     * @param badgeId The numeric identifier of the badge to remove.
+     */
+    void removeAuthorizedBadge(int badgeId);
+
 };
