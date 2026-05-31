@@ -52,17 +52,21 @@ TEST(DoorReaderTest, ThirdFailedScanTriggersLockout) {
     EXPECT_EQ(reader.getState(), DoorState::ALARM_LOCKOUT);
 }
 
-// Test 5: Verify secureDoor() forces the state back to LOCKED
-TEST(DoorReaderTest, SecureDoorForcesLockedState) {
-    DoorReader reader; 
+// Test 5: Verify secureDoor() forces the state back to LOCKED and clears the Ghost Counter
+TEST(DoorReaderTest, SecureDoorForcesLockedStateAndResetsCounter) {
+    DoorReader reader;
     
-    // Unlock the door first
+    // PART 1: Verify the state transition
     reader.processScanResult(true);
     EXPECT_EQ(reader.getState(), DoorState::UNLOCKED);
-    
-    // Force secure
     reader.secureDoor();
-    
+    EXPECT_EQ(reader.getState(), DoorState::LOCKED);
+
+    // PART 2: Verify the Ghost Counter fix
+    reader.processScanResult(false);
+    EXPECT_EQ(reader.getFailedAttempts(), 1); // Counter is now greater than 0
+    reader.secureDoor();
+    EXPECT_EQ(reader.getFailedAttempts(), 0); // Ghost counter successfully cleared
     EXPECT_EQ(reader.getState(), DoorState::LOCKED);
 }
 
@@ -82,4 +86,22 @@ TEST(DoorReaderTest, LockoutStateIgnoresValidBadges) {
     // 3. Verify the door strictly remains locked out and the counter doesn't reset
     EXPECT_EQ(reader.getState(), DoorState::ALARM_LOCKOUT);
     EXPECT_EQ(reader.getFailedAttempts(), 3); 
+}
+
+// Test 7: Verify adminReset() recovers a bricked door
+TEST(DoorReaderTest, AdminResetClearsLockout) {
+    DoorReader reader; 
+    
+    // 1. Force the door into ALARM_LOCKOUT
+    reader.processScanResult(false);
+    reader.processScanResult(false);
+    reader.processScanResult(false);
+    EXPECT_EQ(reader.getState(), DoorState::ALARM_LOCKOUT);
+    
+    // 2. Trigger the admin recovery mechanism
+    reader.adminReset();
+    
+    // 3. Verify the alarm is cleared and the counter is completely reset
+    EXPECT_EQ(reader.getState(), DoorState::LOCKED);
+    EXPECT_EQ(reader.getFailedAttempts(), 0);
 }
