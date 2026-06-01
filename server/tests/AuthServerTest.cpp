@@ -2,7 +2,7 @@
 
 #include "AuthServer.hpp"
 
-const int id1 = 1001, id2 = 1002, id3 = 1003 , id4 = 2001, id5 = 2002, id6 = 2003; // Sample badge IDs for testing
+const int id1 = 1001, id2 = 1002, id3 = 1003 , id4 = 2001, id5 = 2002, id6 = 2003, negativeId = -100; // Sample badge IDs for testing
 
 
 // Test that the server accepts registered badges.
@@ -55,4 +55,14 @@ TEST(AuthServerTest, RemoveNonExistentBadge) {
     AuthServer server;
     server.removeAuthorizedBadge(id6); // Removing a badge that doesn't exist should not cause issues
     EXPECT_FALSE(server.authorizeBadge(id6));
+}
+
+// Test that adding or removing a negative badge is safely ignored and does not affect the authorization of other badges.
+TEST(AuthServerTest, AddRemoveNegativeBadge) {
+    AuthServer server;
+    server.addAuthorizedBadge(id1);
+    server.addAuthorizedBadge(negativeId); // Adding a negative badge should be ignored
+    EXPECT_TRUE(server.authorizeBadge(id1)); // Existing badge should still be authorized
+    server.removeAuthorizedBadge(negativeId); // Removing a negative badge should be ignored
+    EXPECT_TRUE(server.authorizeBadge(id1)); // Existing badge should still be authorized
 }
