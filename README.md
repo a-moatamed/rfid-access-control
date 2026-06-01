@@ -149,12 +149,12 @@ cmake --build build-docs --target docs
 
 ---
 
-**Version 1.0**
-
-
 ## Contributors
 
-* **Mahazoasy Narindra Elthéor Dylane**
-* **ABDELRAHMAN ABOMOSA**
+**Version 1.0**
+
+* **Abdelrahman ABOMOSA**
+* **MAHAZOASY Narindra Elthéor Dylane**
 * **Ștefan-Ioan VOINESCU**
 * **Waleed HUSSAIN**
+
