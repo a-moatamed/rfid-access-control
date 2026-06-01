@@ -131,8 +131,8 @@ A Docker environment is provided to ensure reproducible builds, equipped with GC
 # Build the container image
 docker build -t rfid-builder .
 
-# Run the container interactively
-docker run -it rfid-builder
+# Run the container interactively (with local directory synced)
+docker run -it --rm -v ${PWD}:/app rfid-builder
 ```
 *Note: A GitLab CI/CD pipeline is also configured to automatically run compilation, testing, coverage, and documentation generation on every push.*
 
