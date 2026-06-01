@@ -1,86 +1,160 @@
-# Distributed Access Control System (RFID)
+# RFID Access Control System
 
-## Project Overview
-This project implements a multi-architecture Distributed Access Control System. It consists of two primary components:
-1. **Embedded Smart Card Reader (`embedded/`)**: Runs on ARM architecture. Responsible for reading RFID badges and enforcing local security logic, including a strict 3-strike brute-force lockout 
-mechanism.
-2. **Authorization Server (`server/`)**: Runs on x86_64 architecture. Handles the core business logic, simulating a database lookup to authorize or deny badge IDs.
+![C++](https://img.shields.io/badge/C++-17-blue.svg) ![CMake](https://img.shields.io/badge/CMake-Build-success.svg) ![Docker](https://img.shields.io/badge/Docker-Environment-2496ED.svg) ![GitLab 
+CI](https://img.shields.io/badge/GitLab-CI%2FCD-FC6D26.svg) ![Coverage](https://img.shields.io/badge/Coverage-100%25-brightgreen.svg)
 
-## System Dependencies
-To ensure a consistent development and CI/CD environment, this project is containerized. 
+The **Distributed Access Control System** is a C++17 project that simulates a secure RFID-based door access solution composed of two independent subsystems. The project was developed using modern 
+C++ development practices, including automated testing, static analysis, dynamic analysis, code coverage reporting, containerization, and continuous integration.
 
-### Recommended Setup (Docker)
-We highly recommend using Docker to ensure all cross-compilation toolchains and static/dynamic analyzers are configured correctly.
-* **Docker Engine** must be installed on your host machine.
-
-### Manual Setup (Ubuntu 22.04)
-If you prefer not to use Docker, your host machine must have the following dependencies installed:
-* `build-essential` (Native x86_64 compiler)
-* `g++-aarch64-linux-gnu` (ARM cross-compiler)
-* `cmake` (>= 3.14)
-* `qemu-user` & `qemu-user-static` (For emulating ARM test binaries)
-* `clang-tidy` (Static analysis)
-* `doxygen` (Documentation generation)
-* `gcovr` (>= 8.x via `pip3`, for modern C++ code coverage reports)
+## Table of Contents
+- [System Architecture](#system-architecture)
+- [Security Features](#security-features)
+- [Project Structure](#project-structure)
+- [Getting Started (Build & Run)](#getting-started-build--run)
+- [Advanced Analysis](#advanced-analysis)
+- [Development Environment](#development-environment)
+- [Documentation](#documentation)
+- [Contributors](#contributors)
 
 ---
 
-## Configuration and Build Instructions
+## System Architecture
 
-### 1. Set Up the Docker Environment
-Build and enter the unified development environment.
+The system is divided into two major components:
 
-```bash
-# Build the Docker image
-docker build -t rfid-build-env .
+### 1. Embedded Component
+Models the behavior of a physical door controller.
+* **Responsibilities:** Maintaining door security state, processing authorization results, tracking failed authentication attempts, triggering lockout protection, and supporting administrative 
+recovery.
+* **States:**
 
-# Run the container interactively
-docker run -it rfid-build-env /bin/bash
+| State | Description |
+| :--- | :--- |
+| `LOCKED` | Default secure state. |
+| `UNLOCKED` | Access granted. |
+| `ALARM_LOCKOUT` | Security lockout triggered after repeated failed attempts. |
+
+### 2. Server Component
+Simulates backend credential verification.
+* **Responsibilities:** Managing authorized RFID badge identifiers, validating badge credentials, rejecting invalid badge IDs, and supporting badge registration/removal.
+
+---
+
+## Security Features
+
+* **Failed Attempt Protection:** The embedded controller tracks consecutive failed badge scans. After **three** consecutive failures, the controller enters `ALARM_LOCKOUT` and ignores further scans, 
+simulating physical brute-force protection.
+* **Administrative Recovery:** An administrator can restore normal operation, clearing the lockout and resetting the system to `LOCKED` with zero failed attempts, using `reader.adminReset();`.
+
+---
+
+## Project Structure
+
+```text
+rfid-access-control/
+├── embedded/
+│   ├── include/          # Embedded headers (DoorReader.hpp)
+│   ├── src/              # Embedded source logic
+│   └── tests/            # GoogleTest suite for Embedded
+├── server/
+│   ├── include/          # Server headers (AuthServer.hpp)
+│   ├── src/              # Server source logic
+│   └── tests/            # GoogleTest suite for Server
+├── CMakeLists.txt        # Master build configuration
+├── Dockerfile            # Containerized environment
+├── Doxyfile.in           # Documentation configuration
+└── README.md
 ```
 
-### 2. Configure the Project
-Inside the container, use CMake to configure the project. The root `CMakeLists.txt` handles both the server and embedded subdirectories.
+---
 
+## Getting Started (Build & Run)
+
+### Requirements
+* CMake 3.14+
+* GCC or Clang with C++17 support
+* Git
+
+### 1. Build the Project
+Configure and compile the project using CMake:
 ```bash
-# Standard Configuration
-cmake -B build -S .
+# Create the build directory and enter it
+mkdir -p build && cd build
 
-# Dynamic Analysis Configuration (Optional)
-# Compiles with AddressSanitizer and UndefinedBehaviorSanitizer
-cmake -B build -S . -DCMAKE_BUILD_TYPE=Sanitize
+# Configure the project
+cmake ..
+
+# Compile the code
+make
 ```
 
-### 3. Build the Binaries
-Compile both the embedded ARM logic and the x86_64 server logic simultaneously:
-
+### 2. Run the Unit Tests
+The project relies on **GoogleTest** to validate authorization, lockouts, recovery transitions, and server management. Run the test suite:
 ```bash
-cmake --build build
-```
-
-### 4. Run Unit Tests
-The project uses Google Test. Because the environment utilizes `qemu-user-static`, you can run both the x86_64 and ARM tests natively from the build directory.
-
-```bash
-cd build
+# From inside the build directory
 ctest --output-on-failure
 ```
 
-### 5. Generate Documentation
-You can automatically generate HTML documentation from the source code comments using the custom Doxygen target:
+---
 
-```bash
-cmake --build build --target docs
-```
-The documentation will be generated and available in the `build/html/` or `build/Doxyfile` directory.
+## Advanced Analysis
 
-### 6. Generate Code Coverage
-To generate a detailed HTML coverage report, you must first configure the project with coverage enabled, run the tests, and then execute the coverage target:
-
+### Code Coverage
+Coverage reporting is implemented using **gcovr**. To generate an HTML report of your test coverage:
 ```bash
 # Configure with coverage enabled
-cmake -B build -S . -DENABLE_COVERAGE=ON
+cmake -S . -B build -DENABLE_COVERAGE=ON
 
-# Build and generate the HTML report via gcovr
-cmake --build build --target coverage
+# Run the tests and generate the report
+cd build
+make coverage
 ```
-The resulting report will be saved to `build/coverage/index.html`.
+*The generated report will be located at:* `build/coverage/index.html`
+
+### Static & Dynamic Analysis
+* **Static Analysis:** **clang-tidy** is integrated directly into the CMake build process to enforce modern C++ practices and maintainability during compilation.
+* **Dynamic Analysis:** AddressSanitizer (ASan) and UndefinedBehaviorSanitizer (UBSan) are available via a custom build configuration to detect memory leaks and undefined behavior.
+```bash
+# Run the dynamic analysis build
+cmake -S . -B build-san -DCMAKE_BUILD_TYPE=Sanitize
+cmake --build build-san
+ctest --test-dir build-san
+```
+
+---
+
+## Development Environment
+
+A Docker environment is provided to ensure reproducible builds, equipped with GCC, CMake, GoogleTest, clang-tidy, gcovr, Doxygen, QEMU, and an ARM64 cross-compilation toolchain.
+
+```bash
+# Build the container image
+docker build -t rfid-builder .
+
+# Run the container interactively
+docker run -it rfid-builder
+```
+*Note: A GitLab CI/CD pipeline is also configured to automatically run compilation, testing, coverage, and documentation generation on every push.*
+
+---
+
+## Documentation
+
+To generate the HTML documentation locally using **Doxygen**:
+```bash
+cmake -S . -B build-docs
+cmake --build build-docs --target docs
+```
+*Output location:* `build-docs/docs/html`
+
+---
+
+**Version 1.0**
+
+
+## Contributors
+
+* **Mahazoasy Narindra Elthéor Dylane**
+* **ABDELRAHMAN ABOMOSA**
+* **Ștefan-Ioan VOINESCU**
+* **Waleed HUSSAIN**
