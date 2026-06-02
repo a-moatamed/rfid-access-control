@@ -24,7 +24,7 @@ add_executable(embedded_logic_tests
 # 2. Link the embedded library and Google Test
 target_link_libraries(embedded_logic_tests PRIVATE
     embedded_logic
-    GTest::gtest_main
+    gtest_main
 )
 
 # 3. Give the test executable access to the headers
@@ -34,3 +34,20 @@ target_include_directories(embedded_logic_tests PRIVATE
 
 # 4. Register the test with CMake so `ctest` can find it
 add_test(NAME embedded_logic_tests COMMAND embedded_logic_tests)
+
+# ==============================================================================
+# Embedded Executable
+# ==============================================================================
+add_executable(embedded_app src/main.cpp)
+
+# Link the DoorReader logic, HTTP library, and JSON library
+target_link_libraries(embedded_app PRIVATE
+    embedded_logic
+    httplib
+    nlohmann_json::nlohmann_json
+)
+target_include_directories(embedded_app PRIVATE include)
+
+# Add OpenSSL Security
+find_package(OpenSSL REQUIRED)
+target_link_libraries(embedded_app PRIVATE OpenSSL::SSL OpenSSL::Crypto)
