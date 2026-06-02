@@ -22,6 +22,7 @@ RUN apt-get update && apt-get install -y \
     qemu-user-static \
     clang-tidy \
     doxygen \
+    libssl-dev \
     python3-pip \
     && pip3 install --no-cache-dir gcovr \
     && rm -rf /var/lib/apt/lists/*

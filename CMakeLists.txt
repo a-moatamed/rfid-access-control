@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
-project(DistributedAccessControl VERSION 1.0 LANGUAGES CXX)
+
+# update the project version
+project(DistributedAccessControl VERSION 2.0 LANGUAGES CXX)
 include(CTest)
 
 option(ENABLE_COVERAGE "Enable coverage instrumentation" OFF)
@@ -33,6 +35,23 @@ if(ENABLE_COVERAGE)
         message(WARNING "Coverage is only supported with GCC or Clang")
     endif()
 endif()
+
+# ==========================================
+# Network & Data Libraries 
+# ==========================================
+FetchContent_Declare(
+  json
+  GIT_REPOSITORY https://github.com/nlohmann/json.git
+  GIT_TAG v3.11.2
+)
+FetchContent_MakeAvailable(json)
+
+FetchContent_Declare(
+  httplib
+  GIT_REPOSITORY https://github.com/yhirose/cpp-httplib.git
+  GIT_TAG v0.14.1
+)
+FetchContent_MakeAvailable(httplib)
 
 find_program(GCOVR_EXECUTABLE gcovr)
 
